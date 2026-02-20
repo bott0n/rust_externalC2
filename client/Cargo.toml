@@ -8,7 +8,7 @@ edition = "2021"
 #   transport: "transport_s3" or "transport_blob"
 # Build with: cargo build --release
 [features]
-default = ["stagless", "transport_s3"]
+default = ["stager", "transport_s3"]
 stagless = []
 stager = []
 transport_s3 = []
