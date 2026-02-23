@@ -35,9 +35,9 @@ rust_externalC2/
 
 ## Modes
 
-The client supports two modes: **Stager** and **Stagless (Pass-thru)**.
+The client supports two modes: **Stager** and **Stagless (Passthrough)**.
 
-| Feature | Stager | Stagless (Pass-thru) |
+| Feature | Stager | Stagless (Passthrough) |
 |---|---|---|
 | Payload delivery | Downloaded from C2 via S3 | Read from local file |
 | Cobalt Strike listener | External C2 only | External C2 + SMB |
@@ -77,7 +77,7 @@ cargo build --release
 
 ---
 
-## Setup — Stagless (Pass-thru) Mode
+## Setup — Stagless (Passthrough) Mode
 
 ### 1. Configure the Client
 
@@ -177,8 +177,12 @@ python3 external_c2_server.py
 - Support Azure blob transport
 - RC4 encryption on payload 
 
+# Credits and Acknowledgments
+This project is based on the research of [external-c2_framework](https://github.com/RhinoSecurityLabs/external_c2_framework) by RihnoSecurityLabs. The passthrough mode implementation is referenced from [cobalt-strike-external-c2-passthrough](https://www.covertswarm.com/post/cobalt-strike-external-c2-passthrough) by CovertSwam
+
+
 # References
-- Server source code modified to support python3 and Passthrough mode https://github.com/RhinoSecurityLabs/external_c2_framework
+- Server source code modified to support python3 and Passthrough mode   
 - Cobalt Strike External C2 Passthrough Guide https://www.covertswarm.com/post/cobalt-strike-external-c2-passthrough
 - Cobalt Strike Beacon C2 using Amazon APIs https://rhinosecuritylabs.com/aws/hiding-cloudcobalt-strike-beacon-c2-using-amazon-apis/
 - https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/blog_user-def-reflcive-loader-part3.htm
