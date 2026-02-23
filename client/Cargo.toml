@@ -1,5 +1,5 @@
 [package]
-name    = "rust_s3_c2"
+name    = "rust_external_c2"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,7 +8,7 @@ edition = "2021"
 #   transport: "transport_s3" or "transport_blob"
 # Build with: cargo build --release
 [features]
-default = ["stager", "transport_s3"]
+default = ["stager", "transport_blob"]
 stagless = []
 stager = []
 transport_s3 = []
@@ -16,6 +16,7 @@ transport_blob = []
 
 [dependencies]
 rust-s3 = "0.35"
+reqwest = { version = "0.12", features = ["rustls-tls"], default-features = false }
 base64 = "0.22"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 uuid = { version = "1", features = ["v4"] }

