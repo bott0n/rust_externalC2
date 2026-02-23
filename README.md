@@ -222,7 +222,7 @@ Or you can just let AI to read this and generate for you :)
 This project is based on the research of [external-c2_framework](https://github.com/RhinoSecurityLabs/external_c2_framework) by RhinoSecurityLabs. The passthrough mode implementation is referenced from [cobalt-strike-external-c2-passthrough](https://www.covertswarm.com/post/cobalt-strike-external-c2-passthrough) by CovertSwarm.
 
 # References
-- Server source code modified to support python3 and Passthrough mode
+- Server source code modified to support python3 and Passthrough mode https://github.com/RhinoSecurityLabs/external_c2_framework/tree/master
 - Cobalt Strike External C2 Passthrough Guide https://www.covertswarm.com/post/cobalt-strike-external-c2-passthrough
 - Cobalt Strike Beacon C2 using Amazon APIs https://rhinosecuritylabs.com/aws/hiding-cloudcobalt-strike-beacon-c2-using-amazon-apis/
 - https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/blog_user-def-reflcive-loader-part3.htm
