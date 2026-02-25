@@ -206,6 +206,45 @@ cd server/
 python3 external_c2_server.py
 ```
 
+## Setup — Transports
+### AWS S3
+1. Create a bucket on AWS S3.
+2. Create an IAM user whose only access is to S3 buckets, and generate secret/access key pair for them.
+3. In `client/src/transports/transport_s3.rs`, change the configurations:
+```rust
+const AWS_SECRET_KEY: &str = "YOUR-SECRET-KEY";
+const AWS_ACCESS_KEY: &str = "YOUR-ACCESS-KEY";
+const AWS_BUCKET_NAME: &str = "S3-BUCKET-NAME";
+const AWS_REGION: &str = "S3-BUCKET-REGION";
+```
+4. In `server/utils/transports/transport_s3.py`, change the configurations:
+```python
+AWS_SECRET_KEY = 'YOUR-SECRET-KEY'
+AWS_ACCESS_KEY = 'YOUR-ACCESS-KEY'
+AWS_BUCKET_NAME = 'S3-BUCKET-NAME'
+```
+
+### Azure Blob
+1. Create a blob storage account on Azure.
+2. Create a blob container on the storage account. 
+3. In `client/src/transports/transport_blob.rs`, change the confgurations:
+```rust
+/// Azure Storage account name
+const AZURE_ACCOUNT_NAME: &str = "YOUR_ACCOUNT_NAME";
+
+/// Azure Blob container name
+const AZURE_CONTAINER_NAME: &str = "YOUR_CONTAINER_NAME";
+
+/// SAS token (without leading '?')
+/// Must have: Read, Add, Create, Write, Delete, List permissions on the container.
+const AZURE_SAS_TOKEN: &str = "YOUR_SAS_TOKEN";
+```
+4. In `server/utils/transports/transports_blob.py`, change the configurations:
+```python
+AZURE_CONNECTION_STRING = "YOUR-AZURE-CONNECTION-STRING"
+AZURE_CONTAINER_NAME = "YOUR-AZURE-CONTAINER-NAME"
+```
+
 # Build Your own Transport
 
 See [TRANSPORT_DEVELOPMENT_WORKFLOW.md](TRANSPORT_DEVELOPMENT_WORKFLOW.md) for a step-by-step guide on creating new transport modules.
