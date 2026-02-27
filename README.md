@@ -1,7 +1,7 @@
 # Rust External C2
 
 A Rust-based External C2 client and Python-based server for Cobalt Strike, using third-party / white-listed endpoint as the transport layer. Allowed to hide the c2 connection traffic behind trust domain.
-Support Passthrough mode (Cobalt Strike 4.10 Feature)S
+Support Stager or Stagless (Passthrough) mode (Cobalt Strike 4.10 Feature)
 ## Architecture
 
 ```
