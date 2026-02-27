@@ -1,7 +1,7 @@
 # Rust External C2
 
-A Rust-based External C2 client and Python-based server for Cobalt Strike, using third-party / white-listed endpoint as the transport layer.
-
+A Rust-based External C2 client and Python-based server for Cobalt Strike, using third-party / white-listed endpoint as the transport layer. Allowed to hide the c2 connection traffic behind trust domain.
+Support Passthrough mode (Cobalt Strike 4.10 Feature)S
 ## Architecture
 
 ```
@@ -64,6 +64,8 @@ The client supports two modes: **Stager** and **Stagless (Passthrough)**.
 | Payload delivery | Downloaded from C2 via transport | Read from local file |
 | Cobalt Strike listener | External C2 only | External C2 + SMB |
 | Config needed | `Cargo.toml` + `config.py` | `Cargo.toml` + `config.py` + `config.rs` |
+| BOF | ✅  | ✅  |
+| UDRL | ❌  | ✅  | 
 
 ## Supported Transports
 
@@ -204,6 +206,9 @@ cargo build --release --no-default-features --features "stagless,transport_blob"
 ```bash
 cd server/
 python3 external_c2_server.py
+
+# Enable debug and verbose logging
+python3 external_c2_server.py -d -v
 ```
 
 ## Setup — Transports
@@ -252,10 +257,11 @@ See [TRANSPORT_DEVELOPMENT_WORKFLOW.md](TRANSPORT_DEVELOPMENT_WORKFLOW.md) for a
 Or you can just let AI to read this and generate for you :)
 
 # Todos:
-- Azure blob Transport (Done)
+- ~~Azure blob Transport~~ (Done)
 - Microsoft Teams Transport
 - Support RC4 encryption
 - Support AES encryption
+- Better method to handle sleep
 
 # Credits and Acknowledgments
 This project is based on the research of [external-c2_framework](https://github.com/RhinoSecurityLabs/external_c2_framework) by RhinoSecurityLabs. The passthrough mode implementation is referenced from [cobalt-strike-external-c2-passthrough](https://www.covertswarm.com/post/cobalt-strike-external-c2-passthrough) by CovertSwarm.
