@@ -14,7 +14,7 @@ use uuid::Uuid;
 // ── Configuration ───────────────────────────────────────────────────────────
 
 const AWS_SECRET_KEY: &str = "YOUR-SECRET-KEY";
-const AWS_ACCESS_KEY: &str = "YOUR=ACCESS-KEY";
+const AWS_ACCESS_KEY: &str = "YOUR-ACCESS-KEY";
 const AWS_BUCKET_NAME: &str = "S3-BUCKET-NAME";
 const AWS_REGION: &str = "S3-BUCKET-REGION";
 
